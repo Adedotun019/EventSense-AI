@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import Transcript from "./components/Transcript";
-import Chapters from "./components/Chapters";
+import Transcript from "@/app/components/Transcript";
+import Chapters from "@/app/components/Chapters";
 import { generateClips } from "@/lib/clipper";
 import { zipClips } from "@/lib/zipClips";
 import JSZip from "jszip";
@@ -60,7 +60,7 @@ export default function Home() {
   };
 
   const Spinner = ({ label = "Loading..." }: { label?: string }) => (
-    <div className="flex items-center justify-center space-x-2 text-sm text-gray-200 mt-4">
+    <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-200 mt-4">
       <svg className="w-5 h-5 animate-spin text-brand-primary" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -85,7 +85,6 @@ export default function Home() {
       });
 
       const data: TranscriptionResponse = await res.json();
-
       if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
 
       setTranscript(data.transcription);
@@ -142,56 +141,66 @@ export default function Home() {
   }, [chapters]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-950 via-gray-900 to-black text-white px-4 py-10 font-sans transition-colors duration-500">
-      <div className="max-w-4xl mx-auto backdrop-blur-md bg-white/10 border border-white/10 rounded-2xl shadow-lg p-10 space-y-10">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl sm:text-5xl font-bold text-blue-400 font-sans animate-fade-in">
+    <main className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-indigo-950 dark:via-gray-900 dark:to-black text-black dark:text-white px-4 py-10 font-sans transition-colors duration-500">
+      <div className="max-w-4xl mx-auto backdrop-blur-md bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 rounded-2xl shadow-lg p-10 space-y-10">
+
+        <header className="text-center space-y-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-blue-500 dark:text-blue-400 font-sans animate-fade-in">
             EventSense AI
           </h1>
-          <p className="text-lg text-gray-300">
+          <p className="text-lg text-gray-700 dark:text-gray-300">
             Upload a video. Let AI find the moments that matter most.
           </p>
-        </div>
+        </header>
 
-        <div className="flex flex-col items-center space-y-4">
-          <label htmlFor="video-upload" className="cursor-pointer bg-brand-primary text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+        <section aria-labelledby="upload-section" className="flex flex-col items-center space-y-4">
+          <h2 id="upload-section" className="sr-only">Upload Section</h2>
+          <label htmlFor="video-upload" className="cursor-pointer bg-brand-primary text-white px-4 py-2 rounded hover:bg-indigo-700 transition" aria-label="Upload a video file">
             Upload Video
           </label>
           <input type="file" id="video-upload" accept="video/*" className="hidden" onChange={handleUpload} />
-
           {videoURL && (
             <>
               <video ref={videoRef} src={videoURL} controls className="w-full rounded-lg shadow-lg" />
               {loading ? <Spinner label="Transcribing..." /> : (
-                <button onClick={sendToTranscription} className="mt-4 px-6 py-2 bg-brand-secondary text-white rounded hover:bg-emerald-700 transition">
+                <button onClick={sendToTranscription} className="mt-4 px-6 py-2 bg-brand-secondary text-white rounded hover:bg-emerald-700 transition" aria-label="Start transcription">
                   Transcribe Video
                 </button>
               )}
             </>
           )}
-        </div>
+        </section>
 
         {error && (
-          <div className="bg-white/20 backdrop-blur-md text-red-700 p-4 rounded-md shadow-md">
+          <div role="alert" className="bg-red-100 dark:bg-white/20 text-red-700 p-4 rounded-md shadow-md">
             <strong>Error:</strong> {error}
           </div>
         )}
 
-        <Transcript transcript={transcript} />
+        <section aria-labelledby="transcript-section">
+          <h2 id="transcript-section" className="sr-only">Transcript Section</h2>
+          <Transcript transcript={transcript} />
+        </section>
 
-        <Chapters
-          chapters={chapters}
-          activeChapterIndex={activeChapterIndex}
-          jumpToTime={jumpToTime}
-          formatTime={formatTime}
-        />
+        <section aria-labelledby="chapters-section">
+          <h2 id="chapters-section" className="sr-only">Chapters Section</h2>
+          <Chapters
+            chapters={chapters}
+            activeChapterIndex={activeChapterIndex}
+            jumpToTime={jumpToTime}
+            formatTime={formatTime}
+          />
+        </section>
 
         {chapters.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-4 justify-center">
+          <section aria-labelledby="download-buttons" className="mt-6 flex flex-wrap gap-4 justify-center">
+            <h2 id="download-buttons" className="sr-only">Download Clips</h2>
+
             <button
               onClick={handleZipAllClips}
               className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded"
               disabled={isDownloadingAll}
+              aria-label="Download all clips as a zip file"
             >
               {isDownloadingAll ? "Zipping Clips..." : "Download All Clips"}
             </button>
@@ -201,14 +210,15 @@ export default function Home() {
                 key={idx}
                 onClick={() => handleDownloadClip(idx)}
                 className="bg-emerald-600 hover:bg-emerald-800 text-white px-4 py-2 rounded"
+                aria-label={`Download Clip ${idx + 1}`}
               >
                 {downloadingClip === idx ? "Downloading..." : `Download Clip ${idx + 1}`}
               </button>
             ))}
-          </div>
+          </section>
         )}
 
-        <footer className="pt-10 text-center text-sm text-gray-400">
+        <footer className="pt-10 text-center text-sm text-gray-500 dark:text-gray-400">
           Built by Dotun with Next.js, Tailwind, and AssemblyAI
         </footer>
       </div>
