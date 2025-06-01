@@ -8,7 +8,7 @@ import Script from "next/script";
 declare global {
   interface Window {
     gtag: (command: string, targetId: string, config?: Record<string, unknown>) => void;
-    dataLayer: any[];
+    dataLayer: Array<string | Date | Record<string, unknown> | IArguments>;
   }
 }
 
