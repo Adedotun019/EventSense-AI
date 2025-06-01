@@ -29,15 +29,15 @@ export default function Analytics() {
   return (
     <>
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        src="https://www.googletagmanager.com/gtag/js?id=G-FMHVT0S6LM"
         strategy="afterInteractive"
       />
-      <Script id="gtag-init" strategy="afterInteractive">
+      <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}');
+          gtag('config', 'G-FMHVT0S6LM');
         `}
       </Script>
     </>
