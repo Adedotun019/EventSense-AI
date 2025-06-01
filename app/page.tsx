@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Transcript from "@/app/components/Transcript";
 import Chapters from "@/app/components/Chapters";
-import { generateClips } from "@/lib/clipper";
+import { generateClips, Clip } from "@/lib/clipper";
 import { zipClips } from "@/lib/zipClips";
 import { ClipCard } from "@/app/components/ClipCard";
 
@@ -16,6 +16,7 @@ type Chapter = {
   summary: string;
   dominantEmotion?: string;
   videoURL: string | null;
+  isFallback?: boolean;
 };
 
 type TranscriptionResponse = {
@@ -92,7 +93,7 @@ export default function Home() {
     }
   }, [videoFile, videoURL]);
 
-  const queueFFmpegTask = (task: () => Promise<{ name: string; blob: Blob }[]>) => {
+  const queueFFmpegTask = (task: () => Promise<Clip[]>) => {
     const newTask = ffmpegLock.then(() => task());
     ffmpegLock = newTask.catch(() => {}) as Promise<void>;
     return newTask;
@@ -100,9 +101,24 @@ export default function Home() {
 
   const handleDownloadClip = useCallback(async (index: number) => {
     if (!videoFile || !chapters[index]) return;
+    
+    // Check if the clip is too short (less than 3 seconds)
+    const clipDuration = (chapters[index].end - chapters[index].start) / 1000;
+    if (clipDuration < 3) {
+      setError(`Clip ${index + 1} is too short (${clipDuration.toFixed(1)}s). Clips must be at least 3 seconds long.`);
+      return;
+    }
+    
     setDownloadingClip(index);
     try {
       const clips = await queueFFmpegTask(() => generateClips(videoFile, [chapters[index]]));
+      
+      // Check if the clip is a fallback (too short or corrupted)
+      if (clips[0].isFallback) {
+        setError(`Cannot download clip ${index + 1}. ${clips[0].error || 'Clip is too short or corrupted.'}`);
+        return;
+      }
+      
       const url = URL.createObjectURL(clips[0].blob);
       const a = document.createElement("a");
       a.href = url;
@@ -111,6 +127,7 @@ export default function Home() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Clip download failed:", err);
+      setError(`Failed to download clip: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setDownloadingClip(null);
     }
@@ -254,7 +271,9 @@ export default function Home() {
                       summary={clip.summary} 
                       onDownload={() => handleDownloadClip(idx)} 
                       isDownloading={downloadingClip === idx} 
-                      dominantEmotion={clip.dominantEmotion} 
+                      dominantEmotion={clip.dominantEmotion}
+                      isFallback={clip.isFallback}
+                      duration={(clip.end - clip.start) / 1000}
                     />
                   ))}
                 </div>

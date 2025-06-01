@@ -1,10 +1,17 @@
 import JSZip from "jszip";
+import { Clip } from "./clipper";
 
-export async function zipClips(clips: { name: string; blob: Blob }[]) {
+export async function zipClips(clips: Clip[]) {
   const zip = new JSZip();
 
-  clips.forEach(({ name, blob }) => {
-    zip.file(name, blob);
+  clips.forEach((clip) => {
+    // Skip fallback clips (too short or corrupted)
+    if (clip.isFallback) {
+      console.log(`Skipping fallback clip: ${clip.name}`);
+      return;
+    }
+    
+    zip.file(clip.name, clip.blob);
   });
 
   const content = await zip.generateAsync({ type: "blob" });

@@ -11,6 +11,9 @@ type ClipCardProps = {
   onDownload: () => void;
   isDownloading: boolean;
   dominantEmotion?: string;
+  isFallback?: boolean;
+  fallbackImage?: string;
+  duration?: number;
 };
 
 const emotionMap: Record<string, { emoji: string; color: string }> = {
@@ -33,10 +36,54 @@ export const ClipCard: React.FC<ClipCardProps> = ({
   onDownload,
   isDownloading,
   dominantEmotion,
+  isFallback = false,
+  fallbackImage,
+  duration,
 }) => {
   const videoSrc = `${videoURL}#t=${start / 1000},${end / 1000}`;
   const emotion = dominantEmotion?.toLowerCase();
   const emotionInfo = emotion && emotionMap[emotion];
+  
+  // Create a default fallback image if none is provided
+  const defaultFallbackImage = React.useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 360;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#1e293b');
+      gradient.addColorStop(1, '#0f172a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add text
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Preview not available', canvas.width / 2, canvas.height / 2 - 15);
+      
+      ctx.fillStyle = '#64748b';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('Clip may be too short or corrupted', canvas.width / 2, canvas.height / 2 + 15);
+      
+      if (duration) {
+        ctx.fillStyle = '#475569';
+        ctx.font = '14px sans-serif';
+        ctx.fillText(`Duration: ${duration.toFixed(1)}s`, canvas.width / 2, canvas.height / 2 + 45);
+      }
+      
+      // Add EventSense AI watermark
+      ctx.fillStyle = '#475569';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('EventSense AI', canvas.width / 2, canvas.height - 20);
+    }
+    
+    return canvas.toDataURL('image/png');
+  }, [duration]);
 
   return (
     <motion.div
@@ -47,16 +94,29 @@ export const ClipCard: React.FC<ClipCardProps> = ({
     >
       {/* Card content */}
       <div className="relative z-10 bg-gray-900/80 border border-white/10 rounded-md">
-        {/* Video with aspect ratio container */}
+        {/* Video or fallback image with aspect ratio container */}
         <div className="relative aspect-video rounded-t-md overflow-hidden shadow-sm" style={{ height: "80px" }}>
-          <video 
-            src={videoSrc} 
-            controls 
-            className="absolute inset-0 w-full h-full object-cover" 
-            preload="metadata"
-            controlsList="nodownload nofullscreen"
-            playsInline
-          />
+          {isFallback ? (
+            <div className="absolute inset-0 w-full h-full bg-gray-900 flex items-center justify-center">
+              <img 
+                src={fallbackImage || defaultFallbackImage} 
+                alt="Preview not available" 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute bottom-1 right-1 bg-red-500/70 text-white text-[8px] px-1 py-0.5 rounded-sm">
+                Too short
+              </div>
+            </div>
+          ) : (
+            <video 
+              src={videoSrc} 
+              controls 
+              className="absolute inset-0 w-full h-full object-cover" 
+              preload="metadata"
+              controlsList="nodownload nofullscreen"
+              playsInline
+            />
+          )}
           {/* Emotion badge overlay */}
           {emotionInfo && (
             <div
