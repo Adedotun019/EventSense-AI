@@ -45,7 +45,8 @@ export async function generateClips(
     );
 
     const data = ffmpeg.FS("readFile", output);
-    const blob = new Blob([data.buffer], { type: "video/mp4" });
+    const uint8Array = new Uint8Array(data.buffer);
+    const blob = new Blob([uint8Array.buffer as ArrayBuffer], { type: "video/mp4" });
 
     clips.push({ name: output, blob });
   }
