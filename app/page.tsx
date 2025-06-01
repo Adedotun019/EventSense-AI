@@ -63,8 +63,8 @@ export default function Home() {
   };
 
   const Spinner = ({ label = "Loading..." }: { label?: string }) => (
-    <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-200 mt-4 animate-pulse">
-      <svg className="w-5 h-5 animate-spin text-brand-primary" fill="none" viewBox="0 0 24 24">
+    <div className="flex items-center justify-center space-x-2 text-sm text-gray-400 mt-4 animate-pulse">
+      <svg className="w-5 h-5 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
       </svg>
@@ -150,39 +150,40 @@ export default function Home() {
   }, [chapters]);
 
   return (
-    <div className="animate-fade-in bg-background text-foreground transition-colors duration-500">
-      <main className="min-h-screen px-4 py-12 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+      {/* Hero Section */}
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
         <motion.div
-          className="max-w-4xl mx-auto backdrop-blur-md bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 rounded-2xl shadow-lg p-8 sm:p-10 space-y-10"
-          initial={{ opacity: 0, y: -20 }}
+          className="text-center space-y-8 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.header
-            className="text-center space-y-4"
-            initial={{ opacity: 0, y: -30 }}
+          {/* Main Title */}
+          <motion.div
+            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-4xl sm:text-5xl font-bold text-blue-500 dark:text-blue-400">
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
               EventSense AI
             </h1>
-            <p className="text-lg text-gray-700 dark:text-gray-300">
+            <p className="text-xl sm:text-2xl text-gray-300 font-light max-w-2xl mx-auto leading-relaxed">
               Upload a video. Let AI find the moments that matter most — with emotion.
             </p>
-          </motion.header>
+          </motion.div>
 
-          <motion.section
-            className="flex flex-col items-center space-y-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            aria-labelledby="upload-heading"
+          {/* Upload Section */}
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <h2 id="upload-heading" className="sr-only">Video Upload</h2>
             <label 
               htmlFor="video-upload" 
-              className="cursor-pointer bg-brand-primary text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-xl transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-500/50"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -192,6 +193,9 @@ export default function Home() {
                 }
               }}
             >
+              <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
               Upload Video
             </label>
             <input 
@@ -202,52 +206,109 @@ export default function Home() {
               onChange={handleUpload}
               aria-describedby="upload-description"
             />
-            <p id="upload-description" className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Select a video file to analyze and extract key moments
+            <p id="upload-description" className="text-gray-400 text-sm max-w-md mx-auto">
+              Select a video file to analyze and extract key moments with AI-powered emotion detection
             </p>
-            {videoURL && (
-              <>
-                <video 
-                  ref={videoRef} 
-                  src={videoURL} 
-                  controls 
-                  className="w-full rounded-lg shadow-md"
-                  aria-label="Uploaded video preview"
-                />
-                {loading ? <Spinner label="Transcribing..." /> : (
+          </motion.div>
+        </motion.div>
+
+        {/* Footer Credit */}
+        <motion.footer
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+        >
+          <p className="text-gray-500 text-sm">
+            Built by Dotun with ❤️ using Next.js, Tailwind, and AssemblyAI
+          </p>
+        </motion.footer>
+      </div>
+
+      {/* Content Section - Only shown when video is uploaded */}
+      {videoURL && (
+        <div className="min-h-screen px-4 py-12">
+          <motion.div
+            className="max-w-6xl mx-auto backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-2xl p-8 sm:p-12 space-y-12"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Video Player */}
+            <motion.section
+              className="space-y-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <video 
+                ref={videoRef} 
+                src={videoURL} 
+                controls 
+                className="w-full rounded-2xl shadow-2xl"
+                aria-label="Uploaded video preview"
+              />
+              
+              {loading ? (
+                <Spinner label="Transcribing and analyzing..." />
+              ) : (
+                <div className="flex justify-center">
                   <button
                     onClick={sendToTranscription}
-                    className="mt-4 px-6 py-2 bg-brand-secondary text-white rounded hover:bg-emerald-700 transition focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/50"
                     aria-label="Start AI transcription and analysis"
                   >
-                    Transcribe Video
+                    <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Analyze with AI
                   </button>
-                )}
-              </>
+                </div>
+              )}
+            </motion.section>
+
+            {/* Error Display */}
+            {error && (
+              <motion.div
+                className="bg-red-500/10 border border-red-500/20 text-red-400 p-6 rounded-xl shadow-lg"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center space-x-3">
+                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <strong className="font-semibold">Error:</strong> {error}
+                  </div>
+                </div>
+              </motion.div>
             )}
-          </motion.section>
 
-          {error && (
-            <div className="bg-red-100 dark:bg-white/20 text-red-700 p-4 rounded-md shadow-sm">
-              <strong>Error:</strong> {error}
-            </div>
-          )}
+            {/* Transcript and Chapters */}
+            <Transcript transcript={transcript} emotion={chapters[0]?.dominantEmotion || null} />
+            <Chapters
+              chapters={chapters}
+              activeChapterIndex={activeChapterIndex}
+              jumpToTime={jumpToTime}
+              formatTime={formatTime}
+            />
 
-          <Transcript transcript={transcript} emotion={chapters[0]?.dominantEmotion || null} />
-          <Chapters
-            chapters={chapters}
-            activeChapterIndex={activeChapterIndex}
-            jumpToTime={jumpToTime}
-            formatTime={formatTime}
-          />
-
-          {chapters.length > 0 && (
-            <section aria-labelledby="clips-heading">
-              <h2 id="clips-heading" className="text-2xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-200">
-                Generated Video Clips
-              </h2>
-              <div className="grid gap-6 sm:grid-cols-2 justify-center">
-                {chapters.map((clip, idx) => (
+            {/* Generated Clips */}
+            {chapters.length > 0 && (
+              <motion.section
+                className="space-y-8"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                aria-labelledby="clips-heading"
+              >
+                <h2 id="clips-heading" className="text-3xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Generated Video Clips
+                </h2>
+                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                  {chapters.map((clip, idx) => (
                     <ClipCard
                       key={idx}
                       videoURL={videoURL || ""}
@@ -258,29 +319,41 @@ export default function Home() {
                       isDownloading={downloadingClip === idx}
                       dominantEmotion={clip.dominantEmotion}
                     />
-                ))}
-              </div>
-              
-              {chapters.length > 1 && (
-                <div className="flex justify-center pt-6">
-                  <button
-                    onClick={handleZipAllClips}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    disabled={isDownloadingAll}
-                    aria-label={`Download all ${chapters.length} clips as a ZIP file`}
-                  >
-                    {isDownloadingAll ? "Zipping Clips..." : "Download All Clips"}
-                  </button>
+                  ))}
                 </div>
-              )}
-            </section>
-          )}
-
-          <footer className="pt-10 text-center text-sm text-gray-500 dark:text-gray-400">
-            Built by Dotun with ❤️ using Next.js, Tailwind, and AssemblyAI
-          </footer>
-        </motion.div>
-      </main>
+                
+                {chapters.length > 1 && (
+                  <div className="flex justify-center pt-8">
+                    <button
+                      onClick={handleZipAllClips}
+                      className="px-8 py-3 text-lg font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      disabled={isDownloadingAll}
+                      aria-label={`Download all ${chapters.length} clips as a ZIP file`}
+                    >
+                      {isDownloadingAll ? (
+                        <>
+                          <svg className="w-5 h-5 mr-2 inline animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                          </svg>
+                          Zipping Clips...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Download All Clips
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </motion.section>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
