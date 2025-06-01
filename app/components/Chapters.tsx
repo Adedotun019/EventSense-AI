@@ -33,9 +33,9 @@ const Chapters: React.FC<ChaptersProps> = ({
 }) => {
   return (
     chapters.length > 0 && (
-      <div className="bg-white/20 backdrop-blur-md p-6 rounded-lg shadow-md">
-        <h2 className="text-lg font-semibold mb-4">Highlights</h2>
-        <ul className="space-y-3">
+      <div className="bg-white/10 backdrop-blur-md p-4 rounded-lg shadow-md border border-white/10">
+        <h2 className="text-sm font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Highlights</h2>
+        <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
           {chapters.map((ch, idx) => {
             const isActive = idx === activeChapterIndex;
             const emoji = ch.dominantEmotion
@@ -46,17 +46,24 @@ const Chapters: React.FC<ChaptersProps> = ({
               <li key={idx}>
                 <button
                   onClick={() => jumpToTime(ch.start / 1000)}
-                  className={`flex flex-col text-left w-full px-4 py-3 rounded-md transition group focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+                  className={`relative flex flex-col text-left w-full px-3 py-2 rounded-md transition-all duration-300 group focus:outline-none ${
                     isActive
-                      ? "bg-yellow-300 text-black font-semibold"
-                      : "bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      ? "bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-white font-semibold"
+                      : "bg-white/5 hover:bg-white/10"
                   }`}
                   aria-current={isActive ? "true" : undefined}
                 >
-                  <span className="text-sm text-gray-500 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-white">
-                    ▶ {formatTime(ch.start)}
+                  {/* Time indicator */}
+                  <span className="text-xs text-cyan-300 group-hover:text-cyan-200 flex items-center">
+                    <svg className="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {formatTime(ch.start)}
                   </span>
-                  <span>
+                  
+                  {/* Summary with emotion */}
+                  <span className="mt-0.5 text-gray-100 group-hover:text-white text-xs line-clamp-2">
                     {isActive && (
                       <span
                         aria-label="Active Chapter"
@@ -68,6 +75,11 @@ const Chapters: React.FC<ChaptersProps> = ({
                     )}
                     {ch.summary}
                   </span>
+                  
+                  {/* Subtle highlight effect for active item */}
+                  {isActive && (
+                    <div className="absolute inset-0 border border-blue-500/50 rounded-md pointer-events-none"></div>
+                  )}
                 </button>
               </li>
             );

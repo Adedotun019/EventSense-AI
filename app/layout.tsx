@@ -50,9 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr">
       <head>
-        <title>EventSense AI – Auto Clip the Best Video Moments</title> {/* Fallback for metadata */}
         <meta name="theme-color" content="#007bff" />
-        <meta name="robots" content="index, follow" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
@@ -70,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-gradient-to-b from-deep-navy to-black text-black dark:text-white transition-colors`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased transition-colors`}
       >
         <main>{children}</main>
       </body>

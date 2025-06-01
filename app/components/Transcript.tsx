@@ -28,24 +28,35 @@ const Transcript: React.FC<TranscriptProps> = ({ transcript, emotion }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       aria-label="Transcript section"
-      className="bg-white/20 dark:bg-white/10 backdrop-blur-md p-6 rounded-lg shadow-md transition-all max-w-4xl mx-auto mb-10"
+      className="bg-white/10 backdrop-blur-md p-4 rounded-lg shadow-md border border-white/10 transition-all max-w-3xl mx-auto mb-6"
     >
-      <h2 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900 dark:text-white flex items-center">
-        Transcript{" "}
-        {emotionIcon && (
-          <span
-            role="img"
-            aria-label={dominant}
-            title={`Dominant emotion: ${dominant}`}
-            className="ml-3 text-2xl sm:text-3xl text-gray-800 dark:text-gray-300 cursor-default select-none transition-transform hover:scale-110"
-          >
-            {emotionIcon}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center">
+          Transcript
+          {emotionIcon && (
+            <span
+              role="img"
+              aria-label={dominant}
+              title={`Dominant emotion: ${dominant}`}
+              className="ml-2 text-lg cursor-default select-none transition-transform hover:scale-110"
+            >
+              {emotionIcon}
+            </span>
+          )}
+        </h2>
+        
+        {dominant && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">
+            Emotion: <span className="font-semibold capitalize">{dominant}</span>
           </span>
         )}
-      </h2>
-      <p className="whitespace-pre-line text-gray-700 dark:text-gray-200 text-sm sm:text-base leading-relaxed">
-        {transcript}
-      </p>
+      </div>
+      
+      <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+        <p className="whitespace-pre-line text-gray-200 text-xs leading-relaxed max-h-40 overflow-y-auto">
+          {transcript}
+        </p>
+      </div>
     </motion.section>
   );
 };
