@@ -22,6 +22,7 @@ type Chapter = {
 type TranscriptionResponse = {
   transcription: string;
   chapters: Chapter[];
+  error?: string;
 };
 
 let ffmpegLock = Promise.resolve();
@@ -74,23 +75,28 @@ export default function Home() {
     setLoading(true);
     setError(null);
 
-    try {
-      const res = await fetch("/api/transcribe", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const res = await fetch("/api/transcribe", {
+      method: "POST",
+      body: formData,
+    });
 
-      const data: TranscriptionResponse = await res.json();
-      if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
-
-      setTranscript(data.transcription);
-      setChapters(data.chapters.map((chapter) => ({ ...chapter, videoURL: videoURL || "" })));
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message || "Unexpected error occurred");
-      else setError("Unexpected error occurred");
-    } finally {
-      setLoading(false);
+    const data: TranscriptionResponse = await res.json();
+    
+    if (!res.ok) {
+      // Fix: The API returns errors in the 'error' field, not 'transcription'
+      throw new Error(data?.error || "Failed to transcribe");
     }
+
+    setTranscript(data.transcription);
+    setChapters(data.chapters.map((chapter) => ({ ...chapter, videoURL: videoURL || "" })));
+  } catch (err: unknown) {
+    console.error("Transcription error:", err);
+    if (err instanceof Error) setError(err.message || "Unexpected error occurred");
+    else setError("Unexpected error occurred");
+  } finally {
+    setLoading(false);
+  }
   }, [videoFile, videoURL]);
 
   const queueFFmpegTask = (task: () => Promise<Clip[]>) => {
