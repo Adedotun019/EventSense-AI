@@ -11,25 +11,23 @@ declare global {
   }
 }
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
+const GA_MEASUREMENT_ID = "G-FMHVT0S6LM";
 
 export default function Analytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID) return;
-
-    window.gtag("config", GA_MEASUREMENT_ID, {
-      page_path: pathname,
-    });
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("config", GA_MEASUREMENT_ID, {
+        page_path: pathname,
+      });
+    }
   }, [pathname]);
-
-  if (!GA_MEASUREMENT_ID) return null;
 
   return (
     <>
       <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-FMHVT0S6LM"
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         strategy="afterInteractive"
       />
       <Script id="google-analytics" strategy="afterInteractive">
@@ -37,7 +35,7 @@ export default function Analytics() {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-FMHVT0S6LM');
+          gtag('config', '${GA_MEASUREMENT_ID}');
         `}
       </Script>
     </>
