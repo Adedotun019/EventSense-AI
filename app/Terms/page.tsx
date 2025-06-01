@@ -45,7 +45,7 @@ export default function TermsPage() {
           <section className="space-y-4">
             <h2 className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">3. User Responsibilities</h2>
             <p className="text-xs text-gray-300">
-              Users are responsible for ensuring they have the rights to upload and process any video content. Do not upload content that infringes on others' intellectual property rights or contains inappropriate material.
+              Users are responsible for ensuring they have the rights to upload and process any video content. Do not upload content that infringes on others&apos; intellectual property rights or contains inappropriate material.
             </p>
           </section>
           
