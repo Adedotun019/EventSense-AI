@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 type ClipCardProps = {
   videoURL: string;
@@ -98,10 +99,13 @@ export const ClipCard: React.FC<ClipCardProps> = ({
         <div className="relative aspect-video rounded-t-md overflow-hidden shadow-sm" style={{ height: "80px" }}>
           {isFallback ? (
             <div className="absolute inset-0 w-full h-full bg-gray-900 flex items-center justify-center">
-              <img 
+              <Image 
                 src={fallbackImage || defaultFallbackImage} 
                 alt="Preview not available" 
                 className="absolute inset-0 w-full h-full object-cover"
+                fill
+                sizes="100vw"
+                priority={false}
               />
               <div className="absolute bottom-1 right-1 bg-red-500/70 text-white text-[8px] px-1 py-0.5 rounded-sm">
                 Too short
