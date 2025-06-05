@@ -161,6 +161,9 @@ export default function Home() {
               <div className="upload-button">Select Video File</div>
               <input type="file" id="video-upload" accept="video/*" className="hidden" onChange={handleUpload} />
             </label>
+             {error === "File size exceeds 500MB." && (
+              <div className="text-red-500 text-xs mt-1">File size exceeds 500MB.</div>
+            )}
           </div>
 
           {videoURL && (
