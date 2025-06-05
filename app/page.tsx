@@ -24,9 +24,9 @@ export default function Home() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState<boolean>(false);
   const [downloadingClip, setDownloadingClip] = useState<number | null>(null);
   const [activeChapterIndex, setActiveChapterIndex] = useState<number | null>(null);
 
