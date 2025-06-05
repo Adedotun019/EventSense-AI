@@ -80,8 +80,8 @@ export default function Home() {
       if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
       setTranscript(data.transcription);
       setChapters(data.chapters);
-    } catch (err: any) {
-      setError(err.message || "Unexpected error occurred");
+    } catch (err: unknown) {
+      setError((err as Error).message || "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
