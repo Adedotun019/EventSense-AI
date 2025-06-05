@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <style>{`body { opacity: 1 !important; }`}</style>
         </noscript>
       </head>
-      <body className="bg-background text-foreground transition-colors duration-300">
+      <body className="transition-colors duration-300 dark:bg-black dark:text-white">
         {children}
 
         {/* Google Analytics */}

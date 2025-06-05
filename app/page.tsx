@@ -132,13 +132,13 @@ export default function Home() {
   }, [chapters]);
 
   return (
-    <main className="min-h-screen relative overflow-hidden text-white bg-black">
+<main className="min-h-screen relative overflow-hidden dark:bg-black dark:text-white">
       {/* Background layers */}
       <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1581091012184-e48f4f9f9ef6?auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/70 to-black/95" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-6 space-y-6">
-         <header className="text-center space-y-2">
+         <header className="text-center space-y-2 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl font-bold neon-title bg-clip-text text-transparent">
             EventSense AI
           </h1>
