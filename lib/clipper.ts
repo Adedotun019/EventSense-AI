@@ -135,6 +135,7 @@ export async function generateClips(
       const data = ffmpeg.FS("readFile", output);
       const uint8Array = new Uint8Array(data.buffer);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer], { type: "video/mp4" });
+      console.log(`Clip ${i + 1} generated successfully:`, blob);
 
       clips.push({ name: output, blob, isFallback: false });
     } catch (error) {
