@@ -48,6 +48,7 @@ console.log("File received:", file);
       },
     });
     const uploadUrl = uploadRes.data.upload_url;
+console.log("Upload URL:", uploadUrl);
 
     const transRes = await axios.post(
       TRANSCRIBE_URL,
@@ -64,20 +65,24 @@ console.log("File received:", file);
       }
     );
     const transcriptId = transRes.data.id;
+    console.log("Transcript ID:", transcriptId);
 
     let transcript: AssemblyAITranscript | null = null;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 60; i++) {
       const poll = await axios.get(`${TRANSCRIBE_URL}/${transcriptId}`, {
         headers: { authorization: apiKey },
       });
 
       if (poll.data.status === "completed") {
         transcript = poll.data as AssemblyAITranscript;
+        console.log("Transcription completed:", transcript);
         break;
       }
       if (poll.data.status === "error") {
+        console.error("Transcription error:", poll.data.error);
         throw new Error(poll.data.error);
       }
+      console.log("Polling transcript status:", poll.data.status);
       await new Promise((r) => setTimeout(r, 2000));
     }
 

@@ -126,7 +126,7 @@ export async function generateClips(
         "-ss", start,
         "-to", end,
         "-preset", "ultrafast",
-        "-crf", "28",
+        "-crf", "32",
         "-c:v", "libx264",
         "-c:a", "aac",
         output
