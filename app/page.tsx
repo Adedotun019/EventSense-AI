@@ -14,10 +14,6 @@ type Chapter = {
   dominantEmotion?: string;
 };
 
-type TranscriptionResponse = {
-  transcription: string;
-  chapters: Chapter[];
-};
 
 export default function Home() {
   const [videoURL, setVideoURL] = useState<string | null>(null);
@@ -85,7 +81,7 @@ export default function Home() {
       let data;
       try {
         data = await res.json();
-      } catch (e) {
+      } catch {
         data = await res.text();
       }
       if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
