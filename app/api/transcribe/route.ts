@@ -40,8 +40,8 @@ console.log("File received:", file);
       return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
     }
 
-    if (file.size > 1000 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size exceeds 1GB." }, { status: 413 });
+    if (file.size > 100 * 1024 * 1024) {
+      return NextResponse.json({ error: "File size exceeds 100MB." }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

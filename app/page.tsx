@@ -36,8 +36,8 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 500 * 1024 * 1024) {
-      setError("File size exceeds 500MB.");
+    if (file.size > 100 * 1024 * 1024) {
+      setError("File size exceeds 100MB.");
       return;
     }
 
@@ -156,13 +156,13 @@ export default function Home() {
         <section className="flex flex-col items-center space-y-4">
            <div className="bg-black/30 p-4 rounded-lg w-full max-w-md text-center">
             <h3 className="text-sm font-semibold mb-1">Upload Your Video</h3>
-            <p className="text-xs text-gray-400 mb-2">MP4, MOV, AVI (max 500MB)</p>
+            <p className="text-xs text-gray-400 mb-2">MP4, MOV, AVI (max 100MB)</p>
             <label htmlFor="video-upload" className="cursor-pointer">
               <div className="upload-button">Select Video File</div>
               <input type="file" id="video-upload" accept="video/*" className="hidden" onChange={handleUpload} />
             </label>
              {error === "File size exceeds 500MB." && (
-              <div className="text-red-500 text-xs mt-1">File size exceeds 500MB.</div>
+              <div className="text-red-500 text-xs mt-1">File size exceeds 100MB.</div>
             )}
           </div>
 
