@@ -37,7 +37,7 @@ export default function Home() {
     if (!file) return;
 
     if (file.size > 100 * 1024 * 1024) {
-      setError("File size exceeds 100MB.");
+      setError("File size limit is 100MB.");
       return;
     }
 
@@ -74,7 +74,7 @@ export default function Home() {
     </div>
   );
 
-  const sendToTranscription = useCallback(async () => {
+    const sendToTranscription = useCallback(async () => {
     if (!videoFile) return;
     const formData = new FormData();
     formData.append("file", videoFile);
@@ -82,12 +82,17 @@ export default function Home() {
     setError(null);
     try {
       const res = await fetch("/api/transcribe", { method: "POST", body: formData });
-      const data: TranscriptionResponse = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = await res.text();
+      }
       if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
       setTranscript(data.transcription);
       setChapters(data.chapters);
     } catch (err: unknown) {
-      setError((err as Error).message || "Unexpected error occurred");
+      setError(String(err) || "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -161,8 +166,8 @@ export default function Home() {
               <div className="upload-button">Select Video File</div>
               <input type="file" id="video-upload" accept="video/*" className="hidden" onChange={handleUpload} />
             </label>
-             {error === "File size exceeds 500MB." && (
-              <div className="text-red-500 text-xs mt-1">File size exceeds 100MB.</div>
+             {error === "File size limit is 100MB." && (
+              <div className="text-red-500 text-xs mt-1">File size limit is 100MB.</div>
             )}
           </div>
 
