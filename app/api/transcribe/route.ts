@@ -40,8 +40,8 @@ console.log("File received:", file);
       return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
     }
 
-    if (file.size > 500 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size exceeds 500MB." }, { status: 413 });
+    if (file.size > 1000 * 1024 * 1024) {
+      return NextResponse.json({ error: "File size exceeds 1GB." }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -54,22 +54,29 @@ console.log("File received:", file);
     const uploadUrl = uploadRes.data.upload_url;
 console.log("Upload URL:", uploadUrl);
 
-    const transRes = await axios.post(
-      TRANSCRIBE_URL,
-      {
-        audio_url: uploadUrl,
-        auto_chapters: true,
-        sentiment_analysis: true,
-      },
-      {
-        headers: {
-          authorization: apiKey,
-          "Content-Type": "application/json",
+    let transRes;
+    let transcriptId: string;
+    try {
+      transRes = await axios.post(
+        TRANSCRIBE_URL,
+        {
+          audio_url: uploadUrl,
+          auto_chapters: true,
+          sentiment_analysis: true,
         },
-      }
-    );
-    const transcriptId = transRes.data.id;
-    console.log("Transcript ID:", transcriptId);
+        {
+          headers: {
+            authorization: apiKey,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      transcriptId = transRes.data.id;
+      console.log("Transcript ID:", transcriptId);
+    } catch (error: any) {
+      console.error("Transcription API Error:", error.message);
+      return NextResponse.json({ error: "Transcription API Error: " + error.message }, { status: 500 });
+    }
 
     let transcript: AssemblyAITranscript | null = null;
     for (let i = 0; i < 60; i++) {
