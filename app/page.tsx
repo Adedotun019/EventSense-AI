@@ -36,8 +36,8 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 100 * 1024 * 1024) {
-      setError("File size exceeds 100MB.");
+    if (file.size > 500 * 1024 * 1024) {
+      setError("File size exceeds 500MB.");
       return;
     }
 
