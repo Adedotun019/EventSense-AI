@@ -73,9 +73,13 @@ console.log("Upload URL:", uploadUrl);
       );
       transcriptId = transRes.data.id;
       console.log("Transcript ID:", transcriptId);
-    } catch (error: any) {
-      console.error("Transcription API Error:", error.message);
-      return NextResponse.json({ error: "Transcription API Error: " + error.message }, { status: 500 });
+    } catch (error: unknown) {
+      let message = "An unknown error occurred";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      console.error("Transcription API Error:", message);
+      return NextResponse.json({ error: "Transcription API Error: " + message }, { status: 500 });
     }
 
     let transcript: AssemblyAITranscript | null = null;
