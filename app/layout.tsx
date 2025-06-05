@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://eventsenseai.vercel.app"),
+  metadataBase: new URL("http://localhost:3001"),
   title: "EventSense AI – Auto Clip the Best Video Moments",
   description:
     "Automatically find and clip the most engaging moments from long videos using AI. Perfect for Reels, Shorts, and TikToks.",
@@ -48,29 +48,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" dir="ltr" className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#007bff" />
+        <meta name="theme-color" content="#0f172a" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <link rel="preload" as="image" href="/og-image.jpg" />
-        {/* Google Analytics */}
         <noscript>
           <style>{`body { opacity: 1 !important; }`}</style>
         </noscript>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground transition-colors duration-300`}
-      >
-        <main>{children}</main>
-        
+      <body className="bg-background text-foreground transition-colors duration-300">
+        {children}
+
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-FMHVT0S6LM"
           strategy="afterInteractive"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="ga-setup" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

@@ -15,6 +15,7 @@ type ClipCardProps = {
   isFallback?: boolean;
   fallbackImage?: string;
   duration?: number;
+  index?: number; // Added index property
 };
 
 const emotionMap: Record<string, { emoji: string; color: string }> = {
@@ -40,10 +41,14 @@ export const ClipCard: React.FC<ClipCardProps> = ({
   isFallback = false,
   fallbackImage,
   duration,
+  index,
 }) => {
   const videoSrc = `${videoURL}#t=${start / 1000},${end / 1000}`;
   const emotion = dominantEmotion?.toLowerCase();
   const emotionInfo = emotion && emotionMap[emotion];
+  
+  // Calculate clip duration in seconds
+  const clipDuration = (end - start) / 1000;
   
   // Create a default fallback image if none is provided
   const defaultFallbackImage = React.useMemo(() => {
@@ -88,15 +93,19 @@ export const ClipCard: React.FC<ClipCardProps> = ({
 
   return (
     <motion.div
-      className="relative group overflow-hidden rounded-md shadow-md"
+      className="relative group overflow-hidden rounded-lg shadow-lg"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: "easeOut", delay: index ? index * 0.1 : 0 }}
+      whileHover={{ scale: 1.02 }}
     >
+      {/* Glow effect on hover */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+      
       {/* Card content */}
-      <div className="relative z-10 bg-gray-900/80 border border-white/10 rounded-md">
+      <div className="relative z-10 bg-gradient-to-br from-gray-900/90 to-black/90 border border-white/10 rounded-lg overflow-hidden">
         {/* Video or fallback image with aspect ratio container */}
-        <div className="relative aspect-video rounded-t-md overflow-hidden shadow-sm" style={{ height: "80px" }}>
+        <div className="relative aspect-video overflow-hidden">
           {isFallback ? (
             <div className="absolute inset-0 w-full h-full bg-gray-900 flex items-center justify-center">
               <Image 
@@ -107,60 +116,74 @@ export const ClipCard: React.FC<ClipCardProps> = ({
                 sizes="100vw"
                 priority={false}
               />
-              <div className="absolute bottom-1 right-1 bg-red-500/70 text-white text-[8px] px-1 py-0.5 rounded-sm">
+              <div className="absolute bottom-2 right-2 bg-red-500/70 text-white text-xs px-1.5 py-0.5 rounded-md">
                 Too short
               </div>
             </div>
           ) : (
-            <video 
-              src={videoSrc} 
-              controls 
-              className="absolute inset-0 w-full h-full object-cover" 
-              preload="metadata"
-              controlsList="nodownload nofullscreen"
-              playsInline
-            />
+            <div className="relative w-full h-full">
+              <video 
+                src={videoSrc} 
+                controls 
+                className="absolute inset-0 w-full h-full object-cover" 
+                preload="metadata"
+                controlsList="nodownload nofullscreen"
+                playsInline
+              />
+              
+              {/* Duration badge */}
+              <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded-md flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {clipDuration.toFixed(1)}s
+              </div>
+            </div>
           )}
+          
           {/* Emotion badge overlay */}
           {emotionInfo && (
             <div
-              className="absolute top-1 left-1 inline-flex items-center gap-0.5 px-1 py-0.5 text-[10px] font-medium rounded-sm text-white z-10"
-              style={{ backgroundColor: emotionInfo.color + "cc" }}
+              className="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-white z-10 backdrop-blur-sm"
+              style={{ backgroundColor: emotionInfo.color + "aa" }}
               aria-label={`Emotion: ${emotion}`}
             >
-              <span title={emotion}>{emotionInfo.emoji}</span>
+              <span title={emotion} className="text-base">{emotionInfo.emoji}</span>
               <span className="capitalize">{emotion}</span>
             </div>
           )}
         </div>
         
         {/* Bottom content */}
-        <div className="p-1.5">
+        <div className="p-3">
           {/* Summary text */}
-          <p className="text-[10px] text-gray-200 line-clamp-2 mb-1.5 h-7">{summary}</p>
+          <p className="text-sm text-gray-200 line-clamp-2 mb-3 leading-snug">{summary}</p>
           
           {/* Download button */}
           <div className="flex justify-end">
             <button
               onClick={onDownload}
-              className="bg-blue-600/30 hover:bg-blue-600/40 text-white py-0.5 px-1.5 text-[9px] rounded-sm transition focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/30 flex items-center"
+              className="relative overflow-hidden bg-gradient-to-r from-blue-600/40 to-blue-800/40 hover:from-blue-600/60 hover:to-blue-800/60 text-white py-1.5 px-3 text-xs rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/30 flex items-center group"
               disabled={isDownloading}
             >
+              {/* Button background glow effect */}
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400/0 via-blue-400/30 to-blue-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></span>
+              
               {isDownloading ? (
                 <>
-                  <svg className="w-2 h-2 mr-0.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 mr-1.5 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
-                  <span>Processing</span>
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-2 h-2 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  <span>Download</span>
-                  <span className="ml-0.5 text-[7px] bg-blue-500/20 px-0.5 rounded-sm">MP4</span>
+                  <span className="relative z-10">Download</span>
+                  <span className="ml-1.5 text-[10px] bg-blue-500/30 px-1 py-0.5 rounded-sm">MP4</span>
                 </>
               )}
             </button>

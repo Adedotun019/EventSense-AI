@@ -32,8 +32,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing AssemblyAI API key.' }, { status: 500 });
     }
     
-    const formData = await req.formData();
+    console.log("Request received for transcription");
+const formData = await req.formData();
     const file = formData.get("file") as File | null;
+console.log("File received:", file);
     if (!file) {
       return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
     }
