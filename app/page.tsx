@@ -14,7 +14,6 @@ type Chapter = {
   dominantEmotion?: string;
 };
 
-
 export default function Home() {
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -46,6 +45,54 @@ export default function Home() {
     setError(null);
   }, []);
 
+  const uploadFileToAssemblyAI = async (file: File): Promise<string> => {
+    const response = await fetch("https://api.assemblyai.com/v2/upload", {
+      method: "POST",
+      headers: {
+        authorization: process.env.NEXT_PUBLIC_ASSEMBLY_API_KEY!,
+        "transfer-encoding": "chunked",
+      },
+      body: file,
+    });
+
+    const data = await response.json();
+    return data.upload_url;
+  };
+
+  const sendToTranscription = useCallback(async () => {
+    if (!videoFile) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const uploadUrl = await uploadFileToAssemblyAI(videoFile);
+      console.log("Upload URL:", uploadUrl);
+
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ upload_url: uploadUrl }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = await res.text();
+      }
+
+      if (!res.ok) throw new Error(data?.error || "Failed to transcribe");
+
+      setTranscript(data.transcription);
+      setChapters(data.chapters);
+    } catch (err: unknown) {
+      setError(String(err) || "Unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, [videoFile]);
+
   const jumpToTime = useCallback((seconds: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime = seconds;
@@ -59,40 +106,6 @@ export default function Home() {
     const s = seconds % 60;
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
-
-  const Spinner = ({ label = "Loading..." }: { label?: string }) => (
-    <div className="flex items-center justify-center gap-2 text-sm text-gray-400 mt-3">
-      <svg className="w-4 h-4 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-      </svg>
-      <span>{label}</span>
-    </div>
-  );
-
-    const sendToTranscription = useCallback(async () => {
-    if (!videoFile) return;
-    const formData = new FormData();
-    formData.append("file", videoFile);
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/transcribe", { method: "POST", body: formData });
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        data = await res.text();
-      }
-      if (!res.ok) throw new Error(data?.transcription || "Failed to transcribe");
-      setTranscript(data.transcription);
-      setChapters(data.chapters);
-    } catch (err: unknown) {
-      setError(String(err) || "Unexpected error occurred");
-    } finally {
-      setLoading(false);
-    }
-  }, [videoFile]);
 
   const handleDownloadClip = useCallback(async (index: number) => {
     if (!videoFile || !chapters[index]) return;
@@ -138,31 +151,39 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [chapters]);
 
+  const Spinner = ({ label = "Loading..." }: { label?: string }) => (
+    <div className="flex items-center justify-center gap-2 text-sm text-gray-400 mt-3">
+      <svg className="w-4 h-4 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+      </svg>
+      <span>{label}</span>
+    </div>
+  );
+
   return (
-<main className="min-h-screen relative overflow-hidden dark:bg-black dark:text-white">
+    <main className="min-h-screen relative overflow-hidden dark:bg-black dark:text-white">
       {/* Background layers */}
       <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1581091012184-e48f4f9f9ef6?auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/70 to-black/95" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-6 space-y-6">
-         <header className="text-center space-y-2 animate-fade-in">
+        <header className="text-center space-y-2 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl font-bold neon-title bg-clip-text text-transparent">
             EventSense AI
           </h1>
           <p className="text-sm text-gray-300">Automatically find and extract key moments from your videos with AI.</p>
         </header>
-        
-        
 
         <section className="flex flex-col items-center space-y-4">
-           <div className="bg-black/30 p-4 rounded-lg w-full max-w-md text-center">
+          <div className="bg-black/30 p-4 rounded-lg w-full max-w-md text-center">
             <h3 className="text-sm font-semibold mb-1">Upload Your Video</h3>
             <p className="text-xs text-gray-400 mb-2">MP4, MOV, AVI (max 100MB)</p>
             <label htmlFor="video-upload" className="cursor-pointer">
               <div className="upload-button">Select Video File</div>
               <input type="file" id="video-upload" accept="video/*" className="hidden" onChange={handleUpload} />
             </label>
-             {error === "File size limit is 100MB." && (
+            {error === "File size limit is 100MB." && (
               <div className="text-red-500 text-xs mt-1">File size limit is 100MB.</div>
             )}
           </div>
@@ -235,4 +256,4 @@ export default function Home() {
       </div>
     </main>
   );
-}
+} 

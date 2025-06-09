@@ -22,67 +22,43 @@ interface AssemblyAISentimentAnalysisResult {
   confidence: number;
 }
 
-const UPLOAD_URL = "https://api.assemblyai.com/v2/upload";
 const TRANSCRIBE_URL = "https://api.assemblyai.com/v2/transcript";
 
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.ASSEMBLY_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Missing AssemblyAI API key.' }, { status: 500 });
-    }
-    
-    console.log("Request received for transcription");
-const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-console.log("File received:", file);
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
+      return NextResponse.json({ error: "Missing AssemblyAI API key." }, { status: 500 });
     }
 
-    if (file.size > 100 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size exceeds 100MB." }, { status: 413 });
+    const { upload_url } = await req.json();
+
+    if (!upload_url) {
+      return NextResponse.json({ error: "No upload_url provided." }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const uploadRes = await axios.post(UPLOAD_URL, buffer, {
-      headers: {
-        authorization: apiKey,
-        "Content-Type": "application/octet-stream",
+    console.log("Starting transcription for:", upload_url);
+
+    const transRes = await axios.post(
+      TRANSCRIBE_URL,
+      {
+        audio_url: upload_url,
+        auto_chapters: true,
+        sentiment_analysis: true,
       },
-    });
-    const uploadUrl = uploadRes.data.upload_url;
-console.log("Upload URL:", uploadUrl);
-
-    let transRes;
-    let transcriptId: string;
-    try {
-      transRes = await axios.post(
-        TRANSCRIBE_URL,
-        {
-          audio_url: uploadUrl,
-          auto_chapters: true,
-          sentiment_analysis: true,
+      {
+        headers: {
+          authorization: apiKey,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            authorization: apiKey,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      transcriptId = transRes.data.id;
-      console.log("Transcript ID:", transcriptId);
-    } catch (error: unknown) {
-      let message = "An unknown error occurred";
-      if (error instanceof Error) {
-        message = error.message;
       }
-      console.error("Transcription API Error:", message);
-      return NextResponse.json({ error: "Transcription API Error: " + message }, { status: 500 });
-    }
+    );
+
+    const transcriptId = transRes.data.id;
+    console.log("Transcript ID:", transcriptId);
 
     let transcript: AssemblyAITranscript | null = null;
+
     for (let i = 0; i < 60; i++) {
       const poll = await axios.get(`${TRANSCRIBE_URL}/${transcriptId}`, {
         headers: { authorization: apiKey },
@@ -90,14 +66,16 @@ console.log("Upload URL:", uploadUrl);
 
       if (poll.data.status === "completed") {
         transcript = poll.data as AssemblyAITranscript;
-        console.log("Transcription completed:", transcript);
+        console.log("Transcription completed.");
         break;
       }
+
       if (poll.data.status === "error") {
         console.error("Transcription error:", poll.data.error);
-        throw new Error(poll.data.error);
+        return NextResponse.json({ error: poll.data.error }, { status: 500 });
       }
-      console.log("Polling transcript status:", poll.data.status);
+
+      console.log("Polling... current status:", poll.data.status);
       await new Promise((r) => setTimeout(r, 2000));
     }
 
@@ -127,8 +105,8 @@ console.log("Upload URL:", uploadUrl);
         try {
           const hf = await analyzeSentiment(ch.summary);
           if (hf) ch.dominantEmotion = hf.toLowerCase();
-        } catch {
-          // ignore errors
+        } catch (error) {
+          console.error("Error analyzing sentiment:", error);
         }
       })
     );
@@ -141,15 +119,10 @@ console.log("Upload URL:", uploadUrl);
       { status: 200 }
     );
   } catch (err: unknown) {
-    let msg: string;
-    if (err instanceof Error) {
-      msg = err.message;
-    } else if (typeof err === "string") {
-      msg = err;
-    } else {
-      msg = "Unknown transcription error";
-    }
-    console.error("Transcription Error:", msg);
+    let msg = "Unknown error.";
+    if (err instanceof Error) msg = err.message;
+
+    console.error("Error in /api/transcribe:", msg);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

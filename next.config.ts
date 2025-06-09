@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        source: '/manifest.json',
+        headers: [
+          { key: 'Content-Type', value: 'application/manifest+json' },
+        ],
+      },
+      {
         source: '/:path*',
         headers: [
           { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
@@ -12,7 +18,7 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  }
+  },
 };
 
 export default nextConfig;
